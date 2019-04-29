@@ -4,20 +4,43 @@ import PokemonForm from './PokemonForm'
 import { Search } from 'semantic-ui-react'
 import _ from 'lodash'
 
-class PokemonPage extends React.Component {
+class PokemonIndex extends React.Component {
+
+  state = {
+    pokemon: [],
+    query: ''
+  }
+
+  componentDidMount() {
+    fetch('http://localhost:3000/pokemon')
+      .then(res => res.json())
+      .then(pokemon => this.setState({ pokemon: pokemon }))
+      .catch(e => console.error(e))
+  }
+
+  addPokemon = pokemon => {
+    this.setState({ pokemon: [...this.state.pokemon, pokemon] })
+  }
+
+  handleSearchChange = (event, {value}) => {
+    this.setState({
+      query: value
+    })
+  }
+
   render() {
     return (
       <div>
         <h1>Pokemon Searcher</h1>
         <br />
-        <Search onSearchChange={_.debounce(() => console.log('🤔'), 500)} showNoResults={false} />
+        <Search onSearchChange={_.debounce(this.handleSearchChange, 500)} showNoResults={false} />
         <br />
-        <PokemonCollection />
+        <PokemonCollection pokemon={this.state.pokemon} query={this.state.query}/>
         <br />
-        <PokemonForm />
+        <PokemonForm addPokemon={this.addPokemon}/>
       </div>
     )
   }
 }
 
-export default PokemonPage
+export default PokemonIndex
